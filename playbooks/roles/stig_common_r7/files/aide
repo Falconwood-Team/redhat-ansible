@@ -1,0 +1,3 @@
+#!/bin/sh
+
+0 0 * * * /usr/sbin/aide --check | /bin/mail -s "$HOSTNAME - Daily aide integrity check run" root@$HOSTNAME
