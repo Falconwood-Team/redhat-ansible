@@ -1,0 +1,90 @@
+---
+#Yum install/remove packages
+- name: Install required packages
+  yum:
+    name:
+      - vim-common
+    state: present
+- name: Remove unnecessary packages
+  yum: 
+    name:
+      - subscription-manager
+      - telnet-server
+      - dracut-fips
+      - postfix
+    state: absent
+
+- name: mask ctrl-alt-del service per V-71993
+  systemd:
+    name: ctrl-alt-del.target
+    state: stopped 
+    enabled: no
+    masked: yes
+
+#Copy Configuration files to remote machine 
+- name: copy yum.conf file
+  copy: src=yum.conf dest=/etc/yum.conf owner=root group=root mode=644 backup=yes
+- name: copy audit rules file /etc/audit
+  copy: src=audit.rules dest=/etc/audit/rules.d/audit.rules owner=root group=root mode=600 backup=yes
+- name: copy audisp-remote.conf
+  copy: src=audisp-remote.conf dest=/etc/audisp/audisp-remote.conf owner=root group=root mode=644 backup=yes
+- name: copy cron.allow (RHEL-07-021190 RHEL-07-021200)
+  copy: src=cron.allow dest=/etc/cron.allow owner=root group=root mode=644 backup=yes
+- name: copy chrony.conf
+  copy: src=chrony.conf dest=/etc/chrony.conf owner=root group=root mode=644 backup=yes
+- name: copy tmout.sh to /etc/profile.d per V-72223.
+  copy: src=tmout.sh dest=/etc/profile.d/tmout.sh owner=root group=root mode=700 backup=yes
+- name: copy au-remote.conf 
+  copy: src=au-remote.conf dest=/etc/audisp/plugins.d/au-remote.conf owner=root group=root mode=644
+- name: copy dccp.conf
+  copy: src=dccp.conf dest=/etc/modprobe.d/dccp.conf owner=root group=root mode=644
+
+#Change mode of files with changed perms. V-71849.
+- name: Change perms cacerts
+  file:
+    path: /etc/pki/ca-trust/extracted/java/cacerts
+    owner: root
+    group: root
+    mode: '0644'
+- name: Change perms ca-bundle.trust.crt
+  file:
+    path: /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+    owner: root
+    group: root
+    mode: '0644'
+- name: Change perms email-ca-bundle.pem
+  file:
+    path: /etc/pki/ca-trust/extracted/pem/email-ca-bundle.pem
+    owner: root
+    group: root
+    mode: '0644'
+- name: Change perms objsign-ca-bundle.pem
+  file:
+    path: /etc/pki/ca-trust/extracted/pem/objsign-ca-bundle.pem
+    owner: root
+    group: root
+    mode: '0644'
+- name: Change perms tls-ca-bundle.pem
+  file:
+    path: /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
+    owner: root
+    group: root
+    mode: '0644'
+- name: Change perms audit.rules
+  file: 
+    path: /etc/audit/audit.rules
+    owner: root
+    group: root
+    mode: '0640'
+- name: Change perms audit.rules in rules.d
+  file:
+    path: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: '0600'
+- name: Change perms setroubleshoot email
+  file:
+    path: /var/lib/setroubleshoot/email_alert_recipients
+    owner: root
+    group: root
+    mode: '0644'
