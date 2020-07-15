@@ -1,0 +1,5 @@
+- 
+    name: Tomcat 8.5 Installer  
+    hosts: web
+    roles:
+         - { role: tomcat-ansible-role }

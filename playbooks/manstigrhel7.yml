@@ -1,0 +1,5 @@
+- 
+    name: Manual STIG RHEL 7    
+    hosts: all
+    roles:
+         - { role: stig_manual_r7 }
