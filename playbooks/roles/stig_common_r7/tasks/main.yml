@@ -1,0 +1,141 @@
+---
+#Yum install/remove packages
+- name: Install required packages
+  yum:
+    name:
+      - screen
+      - aide
+      - postfix
+      - esc
+      - pam_pkcs11
+      - setroubleshoot
+      - rsync
+      - net-tools
+      - vim
+      - zip
+      - unzip
+      - wget
+    state: present
+- name: Remove unnecessary packages
+  yum: 
+    name:
+      - rsh-server
+      - ypserv
+      - telnet-server
+      - lftpd
+      - libreswan
+    state: absent
+- name: Make sssd directory
+  file:
+    path: /etc/sssd
+    state: directory
+
+#Disable Services
+- name: Disable Services
+  service: name="{{ item }}" state=stopped enabled=no
+  with_items: "{{ disabled_services }}"
+  ignore_errors: true
+
+#Copy Configuration files to remote machine 
+- name: Install pwquality.conf file
+  copy: src=pwquality.conf dest=/etc/security/pwquality.conf owner=root group=root mode=644 backup=yes
+- name: Install auditd.conf file(RHEL-07-030350 RHEL-07-030351 RHEL-07-030352)
+  copy: src=auditd.conf dest=/etc/audit/auditd.conf owner=root group=root mode=640 backup=yes
+- name: Copy audit rules file /etc/audit
+  copy: src=audit.rules dest=/etc/audit/rules.d/audit.rules owner=root group=root mode=640 backup=yes
+- name: Install /etc/issue file(RHEL-07-010040)
+  copy: src=issue dest=/etc/issue owner=root group=root mode=644 backup=yes
+- name: Install login.defs file 
+  copy: src=login.defs dest=/etc/login.defs owner=root group=root mode=640 backup=yes
+- name: Install password-auth file (RHEL-07-010371 RHEL-07-010372)
+  copy: src=password-auth dest=/etc/pam.d/password-auth-ac owner=root group=root mode=644 backup=yes
+- name: Install password-auth file 2(RHEL-07-010371 RHEL-07-010372)
+  copy: src=password-auth dest=/etc/pam.d/password-auth-ac.cdc owner=root group=root mode=644 backup=yes
+- name: Install sshd_config file
+  copy: src=sshd_config dest=/etc/ssh/sshd_config owner=root group=root mode=600 backup=yes
+- name: Install system-auth file (RHEL-07-010170 RHEL-07-010240 RHEL-07-010260)
+  copy: src=system-auth dest=/etc/pam.d/system-auth-ac owner=root group=root mode=644 backup=yes
+- name: Install system-auth file 2(RHEL-07-010170 RHEL-07-010240 RHEL-07-010260)
+  copy: src=system-auth dest=/etc/pam.d/system-auth-ac.cdc owner=root group=root mode=644 backup=yes
+- name: Install useradd file (RHEL-07-010280)
+  copy: src=useradd dest=/etc/default/useradd owner=root group=root mode=644 backup=yes
+- name: Install postlogin pam file (RHEL-07-040300)
+  copy: src=postlogin dest=/etc/pam.d/postlogin-ac owner=root group=root mode=644 backup=yes
+- name: Configure AIDE cron job (RHEL-07-020130 RHEL-07-020140)
+  copy: src=aide dest=/etc/cron.daily/aide owner=root group=root mode=644 backup=yes
+- name: Install hosts.deny file (RHEL-07-040820)
+  copy: src=hosts.deny dest=/etc/hosts.deny owner=root group=root mode=664 backup=yes
+- name: Copy limits.conf file (RHEL-07-040010)
+  copy: src=limits.conf dest=/etc/security/limits.conf owner=root group=root mode=644 backup=yes
+- name: Copy profile (RHEL-07-040160)
+  copy: src=profile dest=/etc/profile owner=root group=root mode=644 backup=yes
+- name: Copy main.cf (RHEL-07-040480)
+  copy: src=main.cf dest=/etc/postfix/main.cf owner=root group=root mode=644 backup=yes
+- name: Copy aide.conf file (RHEL-07-021600,RHEL-07-021610,RHEL-07-021620)
+  copy: src=aide.conf dest=/etc/aide.conf owner=root group=root mode=600 backup=yes
+- name: Copy cron.allow (RHEL-07-021190 RHEL-07-021200)
+  copy: src=cron.allow dest=/etc/cron.allow owner=root group=root mode=644 backup=yes
+- name: Copy passwd to /etc/pam.d/passwd (RHEL-07-010119)
+  copy: src=passwd dest=/etc/pam.d/passwd owner=root group=root mode=644 backup=yes
+- name: Copy audisp-remote.conf to /etc/audisp
+  copy: src=audisp-remote.conf dest=/etc/audisp/audisp-remote.conf owner=root mode=644 backup=yes
+- name: Copy au-remote.conf to /etc/audisp
+  copy: src=au-remote.conf dest=/etc/audisp/plugins.d/au-remote.conf owner=root mode=644 backup=yes
+- name: Copy blacklist.conf to /etc/modprobe.d
+  copy: src=blacklist.conf dest=/etc/modprobe.d/blacklist.conf owner=root group=root mode=664 backup=yes
+- name: Copy usb-storage.conf to /etc/modprobe.d
+  copy: src=usb-storage.conf dest=/etc/modprobe.d/usb-storage.conf owner=root group=root mode=664 backup=yes
+- name: Copy crontab to /etc
+  copy: src=crontab dest=/etc/crontab owner=root group=root mode=644 backup=yes
+- name: Copy 00-screensaver to /etc/dconf/db/local.d
+  copy: src=00-screensaver dest=/etc/dconf/db/local.d/00-screensaver owner=root group=root mode=644 backup=yes
+- name: Copy 01-banner-message to /etc/dconf/db/local.d
+  copy: src=01-banner-message dest=/etc/dconf/db/local.d/01-banner-message owner=root group=root mode=644 backup=yes
+- name: Copy lock session to /etc/dconf/db/local.d/locks
+  copy: src=session dest=/etc/dconf/db/local.d/locks/session owner=root group=root mode=644 backup=yes
+- name: Copy sssd.conf /etc/sssd
+  copy: src=sssd.conf dest=/etc/sssd/sssd.conf owner=root group=root mode=644 backup=yes
+- name: Copy pam_pkcs11.conf to /etc/pam_pkcs11'
+  copy: src=pam_pkcs11.conf dest=/etc/pam_pkcs11/pam_pkcs11.conf owner=root group=root mode=644 backup=yes
+- name: Modify Sysctl RHEL-07-040351
+  sysctl: name=net.ipv4.conf.all.accept_source_route value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040351
+  sysctl: name=net.ipv4.conf.default.accept_source_route value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040380
+  sysctl: name=net.ipv4.icmp_echo_ignore_broadcasts value=1 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040410
+  sysctl: name=net.ipv4.conf.all.accept_redirects value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-070040410-2  
+  sysctl: name=net.ipv4.conf.default.accept_redirects value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040420
+  sysctl: name=net.ipv4.conf.default.send_redirects value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040421
+  sysctl: name=net.ipv4.conf.all.send_redirects value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040730
+  sysctl: name=net.ipv4.ip_forward value=0 sysctl_set=yes reload=no
+- name: Modify Sysctl RHEL-07-040860
+  sysctl: name=net.ipv6.conf.all.accept_source_route value=0 sysctl_set=yes reload=yes
+- name: Modify Sysctl RHEL-07-040201
+  sysctl: name=kernel.randomize_va_space value=2 sysctl_set=yes reload=yes
+  #Misc
+- name: Delete unnecessary games user account (RHEL-07-010490)
+  user: name=games state=absent force=yes remove=yes
+- name: Delete unnecessary ftp user account (RHEL-07-010490)
+  user: name=ftp state=absent remove=yes
+- name: Remove public from /etc/snmp/snmpd.conf if it exists (RHEL-07-040580)
+  lineinfile: dest=/etc/snmp/snmpd.conf state=absent regexp="public" backup=yes
+- name: Remove private from /etc/snmp/snmpd.conf if it exists (RHEL-07-040580)
+  lineinfile: dest=/etc/snmp/snmpd.conf state=absent regexp="private"
+- name: Set permissions on default SSH ecdsa private key in /etc/ssh
+  file: name=/etc/ssh/ssh_host_ecdsa_key owner=root group=wheel mode=0600 
+- name: Set permissions on default SSH ed25519 private key in /etc/ssh
+  file: name=/etc/ssh/ssh_host_ed25519_key owner=root group=wheel mode=0600 
+- name: Set permissions on default SSH rsa private key in /etc/ssh
+  file: name=/etc/ssh/ssh_host_rsa_key owner=root group=wheel mode=0600 
+
+#Enable selinux
+- name: Enable selinux on the remote machine 
+  selinux: policy=targeted state=enforcing
+- name: Modify selinux policy to allow rsyslog on port 1514
+  seport: ports=1514 proto=tcp setype=syslogd_port_t state=present
+  notify: restart_rsyslog
