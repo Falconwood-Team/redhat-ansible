@@ -1,0 +1,31 @@
+installed_packages:
+#(RHEL-07-010072)
+  - screen
+#Ensure following software installed
+  - aide
+  - postfix
+  - esc
+  - pam_pkcs11
+#added software
+  - setroubleshoot
+  - rsync
+  - net-tools
+  - vim
+  - zip
+  - unzip
+#(RHEL-07-010401,RHEL-07-010402)
+removed_packages:
+#(RHEL-07-020000)
+  - rsh-server
+#(RHEL-07-020010)
+  - ypserv
+#(RHEL-07-021910)
+  - telnet-server
+#(RHEL-07-040490)
+  - lftpd
+#(RHEL-07-040830)
+  - libreswan
+disabled_services:
+#(RHEL-07-021230)
+  - kdump  	
+
